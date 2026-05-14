@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vizualizacao</title>
+
+<style>
+*{box-sizing:border-box}
+body { 
+  font-family: Arial, sans-serif; 
+  margin:0; 
+  background:#f4f6f8; 
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.app {
+  width:100%;
+  max-width:420px;
+  background:#ffffff;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  padding:20px;
+}
+
+.screen { display:none; text-align:center; }
+.active { display:block; }
+
+button { 
+  padding:10px 15px; 
+  border:none; 
+  border-radius:8px; 
+  cursor:pointer; 
+  background:#4CAF50; 
+  color:white; 
+  margin-top:10px;
+}
+
+input { 
+  display:block; 
+  margin:10px auto; 
+  padding:10px; 
+  width:90%; 
+  border-radius:8px; 
+  border:1px solid #ccc; 
+  text-align:center;
+}
+
+.header { 
+  display:flex; 
+  flex-direction:column;
+  align-items:center; 
+  gap:10px; 
+}
+
+.logo { width:90px; height:90px; background:#ddd; }
+
+.profile { 
+  display:flex; 
+  flex-direction:column;
+  align-items:center; 
+  gap:10px; 
+  margin-top:20px; 
+}
+
+.profile img { width:80px; height:80px; border-radius:50%; }
+
+.card { 
+  background:white; 
+  padding:15px; 
+  border-radius:10px; 
+  margin:15px auto; 
+  width:90%;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1); 
+}
+
+.popup { 
+  position:fixed; 
+  top:50%; 
+  left:50%; 
+  transform:translate(-50%,-50%); 
+  background:white; 
+  padding:20px; 
+  border-radius:10px; 
+  display:none; 
+  box-shadow:0 5px 10px rgba(0,0,0,0.2); 
+  width:300px;
+  text-align:center;
+}
+
+.fechar {
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:25px;
+  height:25px;
+  background:#e74c3c;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.popup {
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  display:none;
+  box-shadow:0 5px 10px rgba(0,0,0,0.2);
+  width:300px;
+  text-align:center;
+
+}
+
+.timeline {
+  position: relative;
+  margin-top: 20px;
+  padding-left: 20px;
+  border-left: 2px solid #ccc;
+}
+
+.event {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #7f00ff;
+  border-radius: 50%;
+  position: absolute;
+  left: -6px;
+  top: 5px;
+}
+
+.content {
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.content p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: gray;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- Tela inicial -->
+<div id="tela1" class="screen active">
+  <div class="header">
+    <img src="logo.jpeg" class="logo">
+    <h1>Histórico Clínico</h1>
+  </div>
+
+  <div class="profile">
+    <img src="idosa.jpeg">
+    <div>
+      <strong>Maria Teixeira</strong><br>
+      Idade: 69<br>
+      Diagnóstico principal: Diabetes Tipo 2; Pressão Alta<br>
+      Tipo Sanguíneo: AB<br>
+      Alergia(s): Dipirona<br>
+      Telefone: 81 94002-8922 - Josicleide (Filha)<br>
+      <br>
+
+    </div>
+  </div>
+
+  <button onclick="abrirPin()">Histórico Clínico Completo</button>
+</div>
+
+<!-- Histórico -->
+<div id="historico" class="screen">
+  <button onclick="mostrarTela('tela1')">Voltar</button>
+
+  <div id="resumoPaciente" class="card"></div>
+
+<!-- 🟢 MEDICAMENTOS ATUAIS -->
+<div class="card">
+  <h3>Medicamentos Ativos</h3>
+  <div id="medicamentosAtivosBox"></div>
+</div>
+
+<!-- DIVISÓRIA -->
+<hr style="margin:20px 0;">
+
+<!-- 🧠 HISTÓRICO CLÍNICO -->
+<h3>Histórico Clínico</h3>
+<div class="timeline" id="timeline"></div>
+
+  
+</div>
+
+<!-- Popup PIN -->
+<div id="popupPin" class="popup">
+  <div class="fechar" onclick="fecharPopup()">×</div>
+
+  <h3>Digite o PIN</h3>
+  <input type="password" id="inputPin" maxlength="4">
+  <button onclick="verificarPin()">Entrar</button>
+</div>
+
+</div>
+
+<script>
+
+function mostrarTela(id) {
+  document.querySelectorAll('.screen').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== PIN SIMPLES
+function abrirPin() {
+  document.getElementById('popupPin').style.display = 'block';
+}
+
+function verificarPin() {
+  let digitado = document.getElementById('inputPin').value;
+
+  if (digitado === "1234") {
+    document.getElementById('popupPin').style.display = 'none';
+    mostrarTela('historico');
+  } else {
+    alert('PIN incorreto');
+  }
+}
+
+function fecharPopup() {
+  document.getElementById('popupPin').style.display = 'none';
+}
+
+const medicamentosAtivos = [
+  { nome: "Captopril", dose: "25mg", hora: "14:40"},
+  { nome: "Anlodipino", dose: "10mg", hora: "17:20"},
+  { nome: "Losartana", dose: "50mg", hora: "20:00"},
+  { nome: "Insulina", dose: "10mg", hora: "13:30"},
+  { nome: "Nimesulida (manhã)", dose: "1 comprimido (10mg)", hora: "09:00"},
+  { nome: "Nimesulida (noite)", dose: "1 comprimido (10mg)", hora: "21:00"}
+];
+
+const medicamentosSuspensos = [
+  { nome: "Ibuprofeno", dose: "10mg", expirou: "10/03/2026" },
+  { nome: "Paracetamol", dose: "500mg", expirou: "20/03/2026" }
+];
+
+const exames = [
+  { nome: "Glicose", resultado: "142 mg/dL", status: "Atenção", data: "18/03/2026" },
+  { nome: "Pressão arterial", resultado: "145/92", status: "Alto", data: "18/03/2026" }
+];
+
+function montarMedicamentosAtivos() {
+  let box = document.getElementById("medicamentosAtivosBox");
+
+  box.innerHTML = "";
+
+  medicamentosAtivos.forEach(m => {
+    box.innerHTML += `
+      <div class="card" style="margin:10px 0;">
+        💊 <strong>${m.nome}</strong><br>
+        ${m.dose}<br>
+        ${m.hora}
+      </div>
+    `;
+  });
+}
+
+function montarResumo() {
+  document.getElementById("resumoPaciente").innerHTML = `
+    <strong>Resumo do Paciente</strong><br><br>
+    🟢 Ativos: ${medicamentosAtivos.length}<br>
+    🟡 Suspensos: ${medicamentosSuspensos.length}<br>
+    🧪 Exames: ${exames.length}
+  `;
+}
+
+function montarTimeline() {
+  let timeline = document.getElementById("timeline");
+  timeline.innerHTML = "";
+
+  medicamentosSuspensos.forEach(m => {
+
+    timeline.innerHTML += `
+      <div class="event">
+        <div class="dot"></div>
+        <div class="content">
+          <strong>${m.nome} suspenso</strong>
+          <p>${m.dose}</p>
+          <span>Expirou em: ${m.expirou}</span>
+        </div>
+      </div>
+    `;
+
+    timeline.innerHTML += `
+      <div class="event">
+        <div class="dot"></div>
+        <div class="content">
+          <strong>🏥 Internação automática</strong>
+          <p>${m.expirou}</p>
+          <span>Gerada após fim de ${m.nome}</span>
+        </div>
+      </div>
+    `;
+  });
+
+  exames.forEach(e => {
+    timeline.innerHTML += `
+      <div class="event">
+        <div class="dot"></div>
+        <div class="content">
+          <strong>Exame: ${e.nome}</strong>
+          <p>${e.resultado}</p>
+          <span>${e.status} - ${e.data}</span>
+        </div>
+      </div>
+    `;
+  });
+}
+
+window.onload = function () {
+  montarResumo();
+  montarMedicamentosAtivos();
+  montarTimeline();
+};
+
+
+</script>
+
+</body>
+</html>

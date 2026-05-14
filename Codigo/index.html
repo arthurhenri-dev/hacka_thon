@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historico Clinico</title>
+  <style>
+    *{box-sizing:border-box}
+    body { 
+      font-family: Arial, sans-serif; 
+      margin:0; 
+      background:#f4f6f8; 
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+    }
+
+    .app {
+      width:100%;
+      max-width:420px;
+      background:#ffffff;
+      border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.15);
+      padding:20px;
+    }
+
+    .screen { display:none; text-align:center; }
+    .active { display:block; }
+
+    button { 
+      padding:10px 15px; 
+      border:none; 
+      border-radius:8px; 
+      cursor:pointer; 
+      background:#4CAF50; 
+      color:white; 
+      margin-top:10px;
+    }
+
+    .btn-danger { background:#e74c3c; }
+    .btn-secondary { background:#3498db; }
+
+    input { 
+      display:block; 
+      margin:10px auto; 
+      padding:10px; 
+      width:90%; 
+      border-radius:8px; 
+      border:1px solid #ccc; 
+      text-align:center;
+    }
+
+    .header { 
+      display:flex; 
+      flex-direction:column;
+      align-items:center; 
+      justify-content:center;
+      gap:10px; 
+    }
+
+    .logo { width:90px; height:90px; background:#ddd; }
+
+    .profile { 
+      display:flex; 
+      flex-direction:column;
+      align-items:center; 
+      gap:10px; 
+      margin-top:20px; 
+    }
+
+    .profile img { width:80px; height:80px; border-radius:50%; }
+
+    .card { 
+      background:white; 
+      padding:15px; 
+      border-radius:10px; 
+      margin:15px auto; 
+      width:90%;
+      box-shadow:0 2px 5px rgba(0,0,0,0.1); 
+    }
+
+    .top-bar { 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
+      margin-bottom:10px;
+    }
+
+    .popup { 
+      position:fixed; 
+      top:50%; 
+      left:50%; 
+      transform:translate(-50%,-50%); 
+      background:white; 
+      padding:20px; 
+      border-radius:10px; 
+      display:none; 
+      box-shadow:0 5px 10px rgba(0,0,0,0.2); 
+      width:300px;
+      text-align:center;
+    }
+
+    .actions { margin-top:10px; display:flex; gap:5px; justify-content:center; }
+
+    .preview-img {
+      width:100%;
+      margin-top:10px;
+      
+    }
+
+    .fechar {
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:25px;
+  height:25px;
+  background:#e74c3c;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.popup {
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  display:none;
+  box-shadow:0 5px 10px rgba(0,0,0,0.2);
+  width:300px;
+  text-align:center;
+}
+
+.btn-ia {
+  width: 90%;
+  padding: 12px;
+  margin: 10px auto;
+
+  background: linear-gradient(135deg, #6c63ff, #4CAF50);
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-ia:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+.scan-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden; /* ISSO AQUI é o segredo */
+  position: relative;
+  margin: 10px auto;
+}
+
+.scan-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* corta sem distorcer */
+}
+
+.pulseira {
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  background: #f2f2f2;
+  transition: 0.2s;
+}
+
+.pulseira:hover {
+  transform: scale(1.02);
+  background: #e9f5ff;
+}
+
+.pro-badge {
+  position: relative !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+
+  border-radius: 20px;
+
+  color: white;
+  background: linear-gradient(135deg, #7f00ff, #e100ff);
+
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 999;
+}
+
+.plan {
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #f7f7f7;
+}
+
+.plan:hover {
+  transform: scale(1.02);
+}
+
+.plan.selected {
+  border-color: #7f00ff;
+  background: #f3e8ff;
+}
+
+.remedio-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 10px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  text-align: left;
+  transition: 0.2s;
+}
+
+.remedio-card:hover {
+  transform: scale(1.01);
+}
+
+.remedio-nome {
+  font-weight: bold;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.remedio-info {
+  font-size: 13px;
+  color: #555;
+  margin-top: 3px;
+}
+
+.remedio-hora {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!--PLANO PRO ICON-->
+  <div class="pro-badge" onclick="abrirPro()">
+  PRO+
+ </div>
+<!-- Tela 1 -->
+<div id="tela1" class="screen active">
+  <div class="header">
+    <img src="logo.jpeg" alt="Logo" class="logo">
+    <h1>Histórico Clínico</h1>
+  </div>
+  <button onclick="mostrarTela('login')">Entrar</button>
+</div>
+
+<!-- Login -->
+<div id="login" class="screen">
+  <h2>Login</h2>
+  <input type="email" placeholder="Email">
+  <input type="password" placeholder="Senha">
+  <button onclick="mostrarTela('tela2')">Entrar</button>
+  <p onclick="mostrarTela('cadastro')" style="color:blue; cursor:pointer;">Cadastre-se</p>
+</div>
+
+<!-- Cadastro -->
+<div id="cadastro" class="screen">
+  <h2>Cadastro</h2>
+  <input type="text" id="cadastroNome" placeholder="Nome completo">
+  <input type="email" placeholder="Email">
+  <input type="password" placeholder="Senha">
+  <input type="date" id="dataNascimento">
+
+  <input 
+  type="text" 
+  id="cadastroDiagnostico" 
+  placeholder="Diagnósticos (ex: Diabetes, Hipertensão)"
+>
+
+  <!-- FOTO DE PERFIL -->
+<div style="margin-top:15px; text-align:center;">
+
+  <img 
+    id="previewPerfilCadastro"
+    src="https://via.placeholder.com/80"
+    style="
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      object-fit:cover;
+      display:block;
+      margin:0 auto 10px;
+      border:2px solid #ddd;
+    "
+  >
+
+  <input 
+    type="file" 
+    id="fotoPerfilInput" 
+    accept="image/*"
+    style="display:none"
+    onchange="previewFotoPerfil(event)"
+  >
+
+  <button 
+    type="button"
+    class="btn-secondary"
+    onclick="document.getElementById('fotoPerfilInput').click()"
+  >
+    Escolher foto
+  </button>
+
+</div>
+
+<button onclick="criarConta()">Criar Conta</button>
+  <div style="
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+  margin-top:10px;
+">
+  <span>Possui uma conta?</span>
+
+  <span 
+    onclick="mostrarTela('login')" 
+    style="color:blue; cursor:pointer;"
+  >
+    Faça Login
+  </span>
+</div>
+</div>
+
+<!-- Tela 2 -->
+<div id="tela2" class="screen">
+  <div class="header">
+    <img src="logo.jpeg" class="logo">
+    <h2>Histórico Clínico</h2>
+  </div>
+
+  <div class="profile">
+    <img id="fotoPerfilPrincipal" src="idosa.jpeg">
+    <div>
+      <strong id="nomeUser">Maria Teixeira</strong><br>
+      Idade: <span id="idadeUser">69</span><br>
+      Diagnóstico principal: <span id="doencaUser">Diabetes Tipo 2; Pressão Alta</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <strong>Próximo remédio:</strong><br>
+    Insulina: 13:30 - 10mg
+  </div>
+
+  <button onclick="mostrarTela('historico')">Histórico Clínico</button>
+  <button onclick="mostrarTela('perfil')">Editar informações pessoais</button>
+
+  <!-- NOVO -->
+  <button onclick="abrirPin()">QR Code</button>
+  <button onclick="mostrarTela('configPin')">Configurar PIN</button>
+
+  <!--Venda das pulseiras-->
+  <div style="margin-top:20px;">
+  <p onclick="abrirPulseiras()" style="
+    font-weight:bold;
+    text-decoration:underline;
+    cursor:pointer;
+    text-align:center;
+    color:#2c3e50;
+  ">
+    Adquirir pulseira
+  </p>
+</div>
+
+</div>
+
+<!-- Histórico -->
+<div id="historico" class="screen">
+  <div class="top-bar">
+    <button onclick="mostrarTela('tela2')">Voltar</button>
+    <button onclick="abrirPopup()">+</button>
+  </div>
+
+  <!-- RESUMO -->
+  <div id="resumoPaciente" class="card"></div>
+
+  <!-- MEDICAMENTOS ATIVOS (AGORA AQUI) -->
+  <div class="card">
+    <h3>Medicamentos Ativos</h3>
+    <div id="medicamentosAtivosBox"></div>
+  </div>
+
+  <hr style="margin:20px 0;">
+
+  <div id="listaRemedios"></div>
+</div>
+
+  
+
+
+<!-- Popup -->
+<div id="popup" class="popup">
+
+    <div class="fechar" onclick="fecharPopupRemedio()">×</div>
+
+  <h3>Novo Medicamento</h3>
+  <input type="text" id="nomeRemedio" placeholder="Nome">
+  <input type="time" id="horarioRemedio">
+  <input type="text" id="doseRemedio" placeholder="Dosagem">
+
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="previewImagem(event)">
+  <input type="file" id="galeriaInput" accept="image/*" style="display:none" onchange="previewImagem(event)">
+  <input type="file" id="arquivoInput" accept="image/*,application/pdf" style="display:none" onchange="previewImagem(event)">
+
+  <div class="btn-ia" onclick="document.getElementById('cameraInput').click()">
+  📷 Preenchimento com IA
+</div>
+  <button class="btn-secondary" onclick="document.getElementById('galeriaInput').click()">🖼️ Importar da galeria</button>
+  <button class="btn-secondary" onclick="document.getElementById('arquivoInput').click()">📁 Importar arquivo</button>
+
+  <div class="scan-container" style="display:none" id="previewContainer">
+  <img id="preview">
+  <div class="scan-line"></div>
+</div>
+
+  <button onclick="salvarRemedio()">Salvar</button>
+</div>
+
+<!--IA-->
+<div id="popupIA" class="popup">
+  <h3>🤖 Analisando receita...</h3>
+
+  <p id="resultadoIA" style="margin-top:10px;"></p>
+
+  <div class="actions">
+    <button onclick="confirmarIA()">Sim</button>
+    <button class="btn-danger" onclick="fecharIA()">Não</button>
+  </div>
+</div>
+
+<!-- Perfil -->
+<div id="perfil" class="screen">
+  <button onclick="mostrarTela('tela2')">Voltar</button>
+  <h2>Editar Perfil</h2>
+  <input id="editNome" placeholder="Nome">
+  <input id="editIdade" placeholder="Idade">
+  <input id="editDoenca" placeholder="Diagnóstico">
+  <input placeholder="Tipo sanguíneo" value="A+">
+  <input placeholder="Altura" value="1,60m">
+  <input placeholder="Peso" value="69kg">
+  <button onclick="salvarPerfil()">Salvar</button>
+</div>
+
+<!-- NOVAS TELAS -->
+<div id="qr" class="screen">
+  <button onclick="mostrarTela('tela2')">Voltar</button>
+  <h2>QR Code</h2>
+  <img id="qrImg">
+</div>
+
+<div id="configPin" class="screen">
+  <h2>Configurar PIN</h2>
+  <input type="password" id="novoPin" maxlength="4" placeholder="PIN de 4 dígitos">
+  <button onclick="salvarPin()">Salvar PIN</button>
+  <button onclick="mostrarTela('tela2')">Voltar</button>
+</div>
+
+<div id="popupPin" class="popup">
+  <div class="fechar" onclick="fecharPopup()">×</div>
+
+  <h3>Digite o PIN</h3>
+  <input type="password" id="inputPin" maxlength="4">
+  <button onclick="verificarPin()">Entrar</button>
+</div>
+
+<!-- POPUP PULSEIRAS -->
+<div id="popupPulseiras" class="popup">
+  <div class="fechar" onclick="fecharPulseiras()">×</div>
+
+  <h3>Pulseiras QR Code</h3>
+
+  <!-- MODELO 1 -->
+  <div class="pulseira" onclick="selecionarPulseira('Preta', 29.90)">
+    <img src="pulseira1.png" style="width:20%; border-radius:10px; margin-top:10px;">
+    <p><strong>Preto</strong></p>
+    <p>R$ 49,90</p>
+  </div>
+
+  <!-- MODELO 2 -->
+  <div class="pulseira" onclick="selecionarPulseira('Rosé', 49.90)">
+    <img src="pulseira3.png" style="width:20%; border-radius:10px; margin-top:10px;">
+    <p><strong>Rosé</strong></p>
+    <p>R$ 49,90</p>
+  </div>
+
+  <div class="pulseira" onclick="selecionarPulseira('Azul', 49.90)">
+    <img src="pulseira2.png" style="width:20%; border-radius:10px; margin-top:10px;">
+    <p><strong>Azul</strong></p>
+    <p>R$ 49,90</p>
+  </div>
+
+  <!-- SELEÇÃO -->
+  <div id="selecionado" style="margin-top:10px; font-weight:bold;"></div>
+
+  <button onclick="comprarPulseira()" style="margin-top:10px;">
+    Comprar agora
+  </button>
+ </div>
+  
+<!-- POPUP PRO -->
+<div id="popupPro" class="popup">
+  <div class="fechar" onclick="fecharPro()">×</div>
+
+  <h3>Assinatura</h3>
+
+  <p style="margin-top:10px;">
+    Para continuar usando seu app sem interrupções, mantenha seu plano ativo.<br><br>
+    A assinatura garante que sua conta permaneça funcionando normalmente.<br><br>
+    Confira abaixo nossos planos:
+  </p>
+
+  <div class="plan" onclick="selecionarPlano('mensal', 19.90, this)">
+    <strong>Assinatura Mensal</strong>
+    <p>R$ 19,90</p>
+  </div>
+
+  <div class="plan" onclick="selecionarPlano('anual', 118.80, this)">
+    <strong>Assinatura Anual</strong>
+    <p>R$ 118,80 / ano (até 12x)</p>
+  </div>
+
+  <div id="planoSelecionado" style="margin-top:10px; font-weight:bold;"></div>
+
+  <button onclick="assinarPlano()" style="margin-top:10px;">
+    Assinar agora
+  </button>
+</div>
+
+</div>
+
+<script>
+let fotoPerfilBase64 = null;
+let listaRemedios = [];
+let editIndex = null;
+let imagemReceita = null;
+let usandoIA = false;
+
+function previewFotoPerfil(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    fotoPerfilBase64 = e.target.result;
+
+    document.getElementById('previewPerfilCadastro').src =
+      fotoPerfilBase64;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+function calcularIdade(dataNascimento) {
+  const hoje = new Date();
+  const nascimento = new Date(dataNascimento);
+
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+
+  const mes = hoje.getMonth() - nascimento.getMonth();
+
+  if (
+    mes < 0 ||
+    (mes === 0 && hoje.getDate() < nascimento.getDate())
+  ) {
+    idade--;
+  }
+
+  return idade;
+}
+
+function mostrarTela(id) {
+  document.querySelectorAll('.screen').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function abrirPopup(index=null) {
+  editIndex = index;
+  document.getElementById('popup').style.display = 'block';
+}
+
+function fecharPopupRemedio() {
+  document.getElementById('popup').style.display = 'none';
+}
+
+function previewImagem(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const previewImg = document.getElementById('preview');
+  const container = document.getElementById('previewContainer');
+
+  container.style.display = 'block';
+  let oldPdf = document.getElementById('pdfPreview');
+  if (oldPdf) oldPdf.remove();
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const result = e.target.result;
+
+    if (file.type === 'application/pdf') {
+      const iframe = document.createElement('iframe');
+      iframe.src = result;
+      iframe.id = 'pdfPreview';
+      iframe.style.width = '100%';
+      iframe.style.height = '200px';
+      iframe.style.marginTop = '10px';
+      iframe.style.borderRadius = '10px';
+      document.getElementById('popup').appendChild(iframe);
+      imagemReceita = result;
+    } else {
+      previewImg.src = result;
+  previewImg.style.display = 'block';
+  imagemReceita = result;
+
+  document.getElementById('previewContainer').style.display = 'block';
+
+  setTimeout(() => {
+  mostrarResultadoIA();
+}, 2000);
+  // 🔥 NOVO: preview dentro do círculo
+  let imgCircle = document.getElementById('imgCameraPreview');
+  let icon = document.getElementById('iconCamera');
+
+  if (imgCircle && icon) {
+    imgCircle.src = result;
+    imgCircle.style.display = 'block';
+    icon.style.display = 'none';
+  }
+    }
+  }
+
+  reader.readAsDataURL(file);
+}
+
+function salvarRemedio() {
+  let nome = document.getElementById('nomeRemedio').value;
+  let horario = document.getElementById('horarioRemedio').value;
+  let dose = document.getElementById('doseRemedio').value;
+
+  if (!nome || !horario || !dose) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  let dataAtual = new Date();
+
+  criarCard(nome, horario, dose, dataAtual);
+
+  listaRemedios.push({
+    nome,
+    horario,
+    dose,
+    dataAdicao: dataAtual
+  });
+
+  localStorage.setItem('remedios', JSON.stringify(listaRemedios));
+
+  document.getElementById('popup').style.display = 'none';
+}
+
+function excluirRemedio(btn) {
+  let card = btn.closest('.remedio-card');
+
+  let nome = card.querySelector('.remedio-nome')
+    .innerText.replace('💊 ', '');
+
+  listaRemedios = listaRemedios.filter(r => r.nome !== nome);
+
+  localStorage.setItem('remedios', JSON.stringify(listaRemedios));
+
+  card.remove();
+}
+
+function salvarPerfil() {
+  document.getElementById('nomeUser').innerText = document.getElementById('editNome').value;
+  document.getElementById('idadeUser').innerText = document.getElementById('editIdade').value;
+  document.getElementById('doencaUser').innerText = document.getElementById('editDoenca').value;
+  mostrarTela('tela2');
+}
+
+// ===== PIN =====
+function salvarPin() {
+  let pin = document.getElementById('novoPin').value;
+
+  if (!/^\d{4}$/.test(pin)) {
+    alert('Digite exatamente 4 números');
+    return;
+  }
+
+  if (/^(\d)\1{3}$/.test(pin)) {
+    alert('Não pode repetir números');
+    return;
+  }
+
+  localStorage.setItem('pin', pin);
+  alert('PIN salvo com sucesso!');
+}
+function abrirPin() {
+  document.getElementById('popupPin').style.display = 'block';
+  
+}
+
+function verificarPin() {
+  let pinSalvo = localStorage.getItem('pin');
+  let digitado = document.getElementById('inputPin').value;
+
+  if (digitado === pinSalvo) {
+    document.getElementById('popupPin').style.display = 'none';
+    gerarQR();
+    mostrarTela('qr');
+  } else {
+    alert('PIN incorreto');
+  }
+}
+
+// ===== QR =====
+function gerarQR() {
+  let remedios = [];
+
+  document.querySelectorAll('.remedio').forEach(remedio => {
+    let dados = remedio.innerText.split('\n');
+
+    remedios.push({
+      nome: dados[0],
+      horario: dados[1],
+      dose: dados[2]
+    });
+  });
+
+  let json = encodeURIComponent(JSON.stringify(remedios));
+
+  // SEU IP LOCAL
+  let link = "http://172.17.37.155:5500/Codigo/index_view.html?dados=" + json;
+
+  let url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + link;
+
+  document.getElementById('qrImg').src = url;
+}
+
+// ===== SALVAR NOME DO CADASTRO
+function criarConta() {
+  let nome = document.getElementById('cadastroNome').value;
+  let dataNascimento = document.getElementById('dataNascimento').value;
+  let diagnostico = document.getElementById('cadastroDiagnostico').value;
+
+  // NOME
+  if (nome.trim() !== "") {
+    document.getElementById('nomeUser').innerText = nome;
+    localStorage.setItem('nomeUser', nome);
+  }
+
+  // IDADE AUTOMÁTICA
+  if (dataNascimento) {
+    let idade = calcularIdade(dataNascimento);
+
+    document.getElementById('idadeUser').innerText = idade;
+
+    localStorage.setItem('idadeUser', idade);
+  }
+
+  // DIAGNÓSTICO
+  if (diagnostico.trim() !== "") {
+    document.getElementById('doencaUser').innerText = diagnostico;
+
+    localStorage.setItem('diagnosticoUser', diagnostico);
+  }
+
+  // FOTO DE PERFIL
+  if (fotoPerfilBase64) {
+    document.getElementById('fotoPerfilPrincipal').src =
+      fotoPerfilBase64;
+
+    localStorage.setItem(
+      'fotoPerfil',
+      fotoPerfilBase64
+    );
+  }
+
+  mostrarTela('tela2');
+}
+
+function fecharPopup() {
+  document.getElementById('popupPin').style.display = 'none';
+}
+
+function carregarRemedios() {
+  let dados = localStorage.getItem('remedios');
+
+  if (dados) {
+    listaRemedios = JSON.parse(dados);
+
+    listaRemedios.forEach(remedio => {
+      criarCard(
+        remedio.nome,
+        remedio.horario,
+        remedio.dose,
+        remedio.dataAdicao
+      );
+    });
+  }
+}
+
+function criarCard(nome, horario, dose, dataAdicao = new Date()) {
+  let dataFormatada = new Date(dataAdicao).toLocaleDateString("pt-BR");
+
+  let div = document.createElement('div');
+  div.className = 'remedio-card';
+
+  div.innerHTML = `
+    <div class="remedio-nome">💊 ${nome}</div>
+    <div class="remedio-info">${dose}</div>
+    <div class="remedio-hora">⏰ ${horario}</div>
+    <div style="font-size:11px; color:#777; margin-top:5px;">
+      Adicionado em: ${dataFormatada}
+    </div>
+
+    <div class="actions">
+      <button class="btn-danger" onclick="excluirRemedio(this)">Excluir</button>
+    </div>
+  `;
+
+  document.getElementById('listaRemedios').appendChild(div);
+}
+
+function mostrarResultadoIA() {
+  let texto = `
+    Medicamento encontrado na imagem:<br><br>
+    <strong>Nimesulida</strong><br>
+    Horário: 09:00<br>
+    Dosagem: 100mg<br>
+    Frequência: A cada 12 horas<br><br>
+    Deseja adicionar?
+  `;
+
+  document.getElementById('resultadoIA').innerHTML = texto;
+  document.getElementById('popupIA').style.display = 'block';
+}
+
+function confirmarIA() {
+  usandoIA = false;
+  let nome = "Nimesulida";
+  let dose = "100mg";
+
+  // 🌅 MANHÃ
+  let horario1 = "09:00";
+  let nomeManha = nome + " (manhã)";
+
+  criarCard(nomeManha, horario1, dose);
+
+  listaRemedios.push({
+    nome: nomeManha,
+    horario: horario1,
+    dose: dose
+  });
+
+  // 🌙 NOITE
+  let horario2 = "21:00";
+  let nomeNoite = nome + " (noite)";
+
+  criarCard(nomeNoite, horario2, dose);
+
+  listaRemedios.push({
+    nome: nomeNoite,
+    horario: horario2,
+    dose: dose
+  });
+
+  localStorage.setItem('remedios', JSON.stringify(listaRemedios));
+  fecharIA();
+}
+
+function fecharIA() {
+  document.getElementById('popupIA').style.display = 'none';
+}
+
+function fecharPopupRemedio() {
+  document.getElementById('popup').style.display = 'none';
+}
+
+//Funcao de abrir o pop up das tarefas
+function abrirPulseiras() {
+  document.getElementById('popupPulseiras').style.display = 'block';
+}
+
+function fecharPulseiras() {
+  document.getElementById('popupPulseiras').style.display = 'none';
+}
+
+function selecionarPulseira() {
+  alert("Pulseira adquirida com sucesso! QR será vinculado ao seu perfil.");
+  fecharPulseiras();
+}
+
+let pulseiraSelecionada = null;
+let precoSelecionado = 0;
+
+function selecionarPulseira(nome, preco) {
+  pulseiraSelecionada = nome;
+  precoSelecionado = preco;
+
+  document.getElementById('selecionado').innerText =
+    `Selecionado: ${nome} - R$ ${preco.toFixed(2)}`;
+}
+
+function comprarPulseira() {
+  if (!pulseiraSelecionada) {
+    alert("Selecione um modelo primeiro!");
+    return;
+  }
+
+  alert(
+    `Compra realizada!\nModelo: ${pulseiraSelecionada}\nValor: R$ ${precoSelecionado.toFixed(2)}`
+  );
+
+  fecharPulseiras();
+}
+
+//funcao abrir popup plano pro
+function abrirPro() {
+  document.getElementById('popupPro').style.display = 'block';
+}
+
+function fecharPro() {
+  document.getElementById('popupPro').style.display = 'none';
+}
+
+let planoAtual = null;
+let precoAtual = 0;
+
+function selecionarPlano(tipo, preco, el) {
+  planoAtual = tipo;
+  precoAtual = preco;
+
+  document.querySelectorAll('.plan').forEach(p => {
+    p.classList.remove('selected');
+  });
+
+  el.classList.add('selected');
+
+  document.getElementById('planoSelecionado').innerText =
+    `Selecionado: ${tipo.toUpperCase()} - R$ ${preco.toFixed(2)}`;
+}
+
+function assinarPlano() {
+  if (!planoAtual) {
+    alert("Selecione um plano primeiro!");
+    return;
+  }
+
+  alert(
+    `Plano ativado!\n\nPlano: ${planoAtual.toUpperCase()}\nValor: R$ ${precoAtual.toFixed(2)}`
+  );
+
+  fecharPro();
+}
+
+const medicamentosAtivos = [
+  { nome: "Captopril", dose: "25mg", hora: "14:40" },
+  { nome: "Anlodipino", dose: "10mg", hora: "17:20" },
+  { nome: "Losartana", dose: "50mg", hora: "20:00" },
+  { nome: "Insulina", dose: "10mg", hora: "13:30" },
+  { nome: "Nimesulida (manhã)", dose: "1 comprimido (10mg)", hora: "09:00" },
+  { nome: "Nimesulida (noite)", dose: "1 comprimido (10mg)", hora: "21:00" }
+];
+
+function montarMedicamentosAtivos() {
+  const box = document.getElementById("medicamentosAtivosBox");
+  box.innerHTML = "";
+
+  medicamentosAtivos.forEach(m => {
+    box.innerHTML += `
+      <div class="remedio-card">
+        <div class="remedio-nome">💊 ${m.nome}</div>
+        <div class="remedio-info">${m.dose}</div>
+        <div class="remedio-hora">⏰ ${m.hora}</div>
+      </div>
+    `;
+  });
+}
+
+//colocar aqui
+  window.onload = function () {
+  carregarRemedios();
+  montarMedicamentosAtivos();
+  let fotoSalva = localStorage.getItem('fotoPerfil');
+
+  if (fotoSalva) {
+    document.getElementById('fotoPerfilPrincipal').src = fotoSalva;
+  }
+
+  let idadeSalva = localStorage.getItem('idadeUser');
+
+  if (idadeSalva) {
+    document.getElementById('idadeUser').innerText = idadeSalva;
+  }
+
+  let diagnosticoSalvo = localStorage.getItem('diagnosticoUser');
+
+  if (diagnosticoSalvo) {
+    document.getElementById('doencaUser').innerText =
+    diagnosticoSalvo;
+ }
+};
+
+</script>
+
+</body>
+</html>
