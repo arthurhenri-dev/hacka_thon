@@ -774,7 +774,7 @@ function gerarQR() {
   let json = encodeURIComponent(JSON.stringify(remedios));
 
   // SEU IP LOCAL
-  let link = "http://172.17.37.155:5500/Codigo/index_view.html?dados=" + json;
+  let link = "http://hackathon3ro.vercel.app/index_view.html" + json;
 
   let url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + link;
 
