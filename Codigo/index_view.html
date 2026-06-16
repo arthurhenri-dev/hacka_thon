@@ -385,10 +385,13 @@ window.onload = function () {
     
   const img = document.getElementById('fotoPaciente');
 
-  if (dados.foto && dados.foto.startsWith("data:image")) {
-  img.src = dados.foto;
+  const fotoSalva = localStorage.getItem('fotoPerfil');
+
+  if (fotoSalva) {
+    document.getElementById('fotoPaciente').src = fotoSalva;
   } else {
-  img.src = 'https://via.placeholder.com/80';
+    document.getElementById('fotoPaciente').src =
+      'https://via.placeholder.com/80';
   }
   
 

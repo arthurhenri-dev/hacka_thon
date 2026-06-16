@@ -771,12 +771,12 @@ function mostrarTela(id) {
 
     const fotoSalva = localStorage.getItem('fotoPerfil');
 
-    if (fotoSalva) {
-      document.getElementById('fotoPaciente').src = fotoSalva;
-    } else {
-      document.getElementById('fotoPaciente').src =
-        'https://via.placeholder.com/80';
-    }
+  if (fotoSalva) {
+    document.getElementById('fotoPaciente').src = fotoSalva;
+  } else {
+    document.getElementById('fotoPaciente').src =
+      'https://via.placeholder.com/80';
+  }
   }
 }
 
