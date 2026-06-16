@@ -939,9 +939,20 @@ function verificarPin() {
   let pinSalvo = localStorage.getItem('pin');
   let digitado = document.getElementById('inputPin').value;
 
+  if (!pinSalvo) {
+    alert("Nenhum PIN cadastrado");
+    return;
+  }
+
   if (digitado === pinSalvo) {
     document.getElementById('popupPin').style.display = 'none';
-    gerarQR();
+
+    try {
+      gerarQR();
+    } catch (e) {
+      console.error("Erro gerarQR:", e);
+    }
+
     mostrarTela('qr');
   } else {
     alert('PIN incorreto');
@@ -951,29 +962,32 @@ function verificarPin() {
 // ===== QR =====
 function gerarQR() {
 
+  let foto = localStorage.getItem('fotoPerfil');
+
   const dados = {
-    nome: localStorage.getItem('nomeUser'),
-    idade: localStorage.getItem('idadeUser'),
-    diagnostico: localStorage.getItem('diagnosticoUser'),
-    tipoSanguineo: localStorage.getItem('tipoSanguineoUser'),
-    contato: localStorage.getItem('contatoEmergenciaUser'),
-    foto: localStorage.getItem('fotoPerfil'),
-    pin: localStorage.getItem('pin'),
-    remedios: listaRemedios
+    nome: localStorage.getItem('nomeUser') || '',
+    idade: localStorage.getItem('idadeUser') || '',
+    diagnostico: localStorage.getItem('diagnosticoUser') || '',
+    tipoSanguineo: localStorage.getItem('tipoSanguineoUser') || '',
+    contato: localStorage.getItem('contatoEmergenciaUser') || '',
+    pin: localStorage.getItem('pin') || ''
   };
 
-  const json =
-    encodeURIComponent(
-      JSON.stringify(dados)
-    );
+  const json = btoa(JSON.stringify(dados));
+
+  const id = Date.now().toString(36);
+  localStorage.setItem("userId", id);
 
   const link =
-    "https://hackathon3ro.vercel.app/index_view.html?dados=" +
-    json;
+    "https://hackathon3ro.vercel.app/index_view.html?dados=" + json;
 
-  document.getElementById('qrImg').src =
+  const qrUrl =
     "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
     encodeURIComponent(link);
+
+  document.getElementById('qrImg').src = qrUrl;
+
+  console.log("QR gerado com sucesso");
 }
 
 // ===== SALVAR NOME DO CADASTRO

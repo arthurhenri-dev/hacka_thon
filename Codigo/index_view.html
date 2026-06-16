@@ -229,16 +229,12 @@ hr {
 
 <script>
 
-const params =
-  new URLSearchParams(window.location.search);
-
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
 const dados =
   JSON.parse(
-    decodeURIComponent(
-      params.get('dados')
-    )
+    atob(params.get('dados') || '')
   );
-
 function montarMedicamentosAtivos(){
 
   const box =
@@ -386,16 +382,20 @@ window.onload = function () {
     'telefonePaciente'
   ).innerText =
     dados.contato || 'Não informado';
+    
+  const img = document.getElementById('fotoPaciente');
 
-  if(dados.foto){
-    document.getElementById(
-      'fotoPaciente'
-    ).src =
-      dados.foto;
+  if (dados.foto && dados.foto.startsWith("data:image")) {
+  img.src = dados.foto;
+  } else {
+  img.src = 'https://via.placeholder.com/80';
   }
+  
 
   montarResumo();
   montarTimeline();
+
+  montarMedicamentosAtivos();
 };
 
 
