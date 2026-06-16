@@ -412,8 +412,39 @@
   </div>
 
   <div class="card">
-    <strong>Próximo remédio:</strong><br>
-    Insulina: 13:30 - 10mg
+
+  <strong>Progresso do tratamento</strong>
+
+  <div id="textoProgresso">
+    0/0 medicamentos
+  </div>
+
+  <div style="
+    width:100%;
+    height:18px;
+    background:#ddd;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:8px;
+  ">
+
+    <div
+      id="barraProgresso"
+      style="
+        width:0%;
+        height:100%;
+        background:#4CAF50;
+      ">
+    </div>
+
+  </div>
+
+  <div class="card">
+
+  <strong>Próximo remédio</strong>
+
+  <div id="proximoRemedio">
+    Nenhum medicamento cadastrado
   </div>
 
   <button onclick="mostrarTela('historico')">Histórico Clínico</button>
@@ -814,12 +845,16 @@ function salvarRemedio() {
     nome,
     horario,
     dose,
-    dataAdicao: dataAtual
+    dataAdicao: dataAtual,
+    tomado: false
   });
 
   localStorage.setItem('remedios', JSON.stringify(listaRemedios));
 
   document.getElementById('popup').style.display = 'none';
+
+  atualizarProgresso();
+  atualizarProximoRemedio();
 }
 
 function excluirRemedio(btn) {
@@ -987,6 +1022,9 @@ function carregarRemedios() {
       );
     });
   }
+
+  atualizarProgresso();
+  atualizarProximoRemedio();
 }
 
 function criarCard(nome, horario, dose, dataAdicao = new Date()) {
@@ -1004,8 +1042,27 @@ function criarCard(nome, horario, dose, dataAdicao = new Date()) {
     </div>
 
     <div class="actions">
-      <button class="btn-danger" onclick="excluirRemedio(this)">Excluir</button>
-    </div>
+
+    <button
+      onclick="marcarTomado(this)"
+      class="btnTomado"
+      style="
+        background:#999;
+        color:white;
+        width:40px;
+      "
+    >
+      ✓
+    </button>
+
+    <button
+      class="btn-danger"
+      onclick="excluirRemedio(this)"
+    >
+      Excluir
+    </button>
+
+  </div>
   `;
 
   document.getElementById('listaRemedios').appendChild(div);
@@ -1234,6 +1291,152 @@ function fazerLogin() {
 
     erro.style.display = 'block';
   }
+}
+
+function marcarTomado(btn){
+
+  const card =
+    btn.closest('.remedio-card');
+
+  const nome =
+    card.querySelector('.remedio-nome')
+    .innerText.replace('💊 ','')
+    .trim();
+
+  let remedio =
+    listaRemedios.find(r => r.nome === nome);
+
+  if(!remedio) return;
+
+  remedio.tomado =
+    !remedio.tomado;
+
+  btn.style.background =
+    remedio.tomado
+      ? "#4CAF50"
+      : "#999";
+
+  localStorage.setItem(
+    'remedios',
+    JSON.stringify(listaRemedios)
+  );
+
+  atualizarProgresso();
+  atualizarProximoRemedio();
+}
+
+function atualizarProgresso(){
+
+  let total =
+    listaRemedios.length;
+
+  let tomados =
+    listaRemedios.filter(r => r.tomado).length;
+
+  let porcentagem =
+    total === 0
+      ? 0
+      : (tomados/total)*100;
+
+  document.getElementById(
+    'textoProgresso'
+  ).innerText =
+    `${tomados}/${total} medicamentos`;
+
+  document.getElementById(
+    'barraProgresso'
+  ).style.width =
+    porcentagem + "%";
+}
+
+function atualizarProximoRemedio(){
+
+  if(listaRemedios.length === 0){
+
+    document.getElementById(
+      'proximoRemedio'
+    ).innerHTML =
+      'Nenhum medicamento cadastrado';
+
+    return;
+  }
+
+  const agora =
+    new Date();
+
+  const minutosAgora =
+    agora.getHours()*60 +
+    agora.getMinutes();
+
+  let candidato = null;
+
+  listaRemedios.forEach(r => {
+
+    if(r.tomado) return;
+
+    const partes =
+      r.horario.split(':');
+
+    const minutosRemedio =
+      Number(partes[0])*60 +
+      Number(partes[1]);
+
+    if(
+      minutosRemedio - minutosAgora <= 30 &&
+      minutosRemedio - minutosAgora >= 0
+    ){
+      candidato = r;
+    }
+
+  });
+
+  if(!candidato){
+
+    document.getElementById(
+      'proximoRemedio'
+    ).innerHTML =
+      'Nenhum medicamento próximo';
+    return;
+  }
+
+  document.getElementById(
+    'proximoRemedio'
+  ).innerHTML = `
+    💊 ${candidato.nome}<br>
+    ⏰ ${candidato.horario}<br><br>
+
+    <button
+      onclick="marcarProximo('${candidato.nome}')"
+      style="
+        background:#999;
+        color:white;
+      "
+    >
+      ✓ Tomado
+    </button>
+  `;
+}
+
+function marcarProximo(nome){
+
+  let remedio =
+    listaRemedios.find(
+      r => r.nome === nome
+    );
+
+  if(!remedio) return;
+
+  remedio.tomado = true;
+
+  localStorage.setItem(
+    'remedios',
+    JSON.stringify(listaRemedios)
+  );
+
+  atualizarProgresso();
+  atualizarProximoRemedio();
+
+  carregarTelaHistorico();
 }
 
 </script>

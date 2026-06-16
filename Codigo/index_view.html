@@ -254,14 +254,7 @@ function fecharPopup() {
   document.getElementById('popupPin').style.display = 'none';
 }
 
-const medicamentosAtivos = [
-  { nome: "Captopril", dose: "25mg", hora: "14:40"},
-  { nome: "Anlodipino", dose: "10mg", hora: "17:20"},
-  { nome: "Losartana", dose: "50mg", hora: "20:00"},
-  { nome: "Insulina", dose: "10mg", hora: "13:30"},
-  { nome: "Nimesulida (manhã)", dose: "1 comprimido (10mg)", hora: "09:00"},
-  { nome: "Nimesulida (noite)", dose: "1 comprimido (10mg)", hora: "21:00"}
-];
+
 
 const medicamentosSuspensos = [
   { nome: "Ibuprofeno", dose: "10mg", expirou: "10/03/2026" },
@@ -273,21 +266,6 @@ const exames = [
   { nome: "Pressão arterial", resultado: "145/92", status: "Alto", data: "18/03/2026" }
 ];
 
-function montarMedicamentosAtivos() {
-  let box = document.getElementById("medicamentosAtivosBox");
-
-  box.innerHTML = "";
-
-  medicamentosAtivos.forEach(m => {
-    box.innerHTML += `
-      <div class="card" style="margin:10px 0;">
-        💊 <strong>${m.nome}</strong><br>
-        ${m.dose}<br>
-        ${m.hora}
-      </div>
-    `;
-  });
-}
 
 function montarResumo() {
   document.getElementById("resumoPaciente").innerHTML = `
@@ -343,7 +321,6 @@ function montarTimeline() {
 
 window.onload = function () {
   montarResumo();
-  montarMedicamentosAtivos();
   montarTimeline();
 };
 
