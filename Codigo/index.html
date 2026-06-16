@@ -341,6 +341,18 @@
   placeholder="Diagnósticos (ex: Diabetes, Hipertensão)"
 >
 
+  <input
+  type="text"
+  id="cadastroTipoSanguineo"
+  placeholder="Tipo sanguíneo"
+  />
+
+  <input
+    type="text"
+    id="cadastroContato"
+    placeholder="Telefone de emergência"
+  />
+
   <!-- FOTO DE PERFIL -->
 <div style="margin-top:15px; text-align:center;">
 
@@ -938,26 +950,30 @@ function verificarPin() {
 
 // ===== QR =====
 function gerarQR() {
-  let remedios = [];
 
-  document.querySelectorAll('.remedio').forEach(remedio => {
-    let dados = remedio.innerText.split('\n');
+  const dados = {
+    nome: localStorage.getItem('nomeUser'),
+    idade: localStorage.getItem('idadeUser'),
+    diagnostico: localStorage.getItem('diagnosticoUser'),
+    tipoSanguineo: localStorage.getItem('tipoSanguineoUser'),
+    contato: localStorage.getItem('contatoEmergenciaUser'),
+    foto: localStorage.getItem('fotoPerfil'),
+    pin: localStorage.getItem('pin'),
+    remedios: listaRemedios
+  };
 
-    remedios.push({
-      nome: dados[0],
-      horario: dados[1],
-      dose: dados[2]
-    });
-  });
+  const json =
+    encodeURIComponent(
+      JSON.stringify(dados)
+    );
 
-  let json = encodeURIComponent(JSON.stringify(remedios));
+  const link =
+    "https://hackathon3ro.vercel.app/index_view.html?dados=" +
+    json;
 
-  // SEU IP LOCAL
-  let link = "https://hackathon3ro.vercel.app/index_view.html" + json;
-
-  let url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + link;
-
-  document.getElementById('qrImg').src = url;
+  document.getElementById('qrImg').src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+    encodeURIComponent(link);
 }
 
 // ===== SALVAR NOME DO CADASTRO
@@ -965,6 +981,8 @@ function criarConta() {
   let nome = document.getElementById('cadastroNome').value;
   let dataNascimento = document.getElementById('dataNascimento').value;
   let diagnostico = document.getElementById('cadastroDiagnostico').value;
+  let tipoSanguineo = document.getElementById('cadastroTipoSanguineo').value;
+  let contato = document.getElementById('cadastroContato').value;
   let email = document.getElementById('cadastroEmail').value;
   let senha = document.getElementById('cadastroSenha').value;
 
@@ -1002,6 +1020,8 @@ function criarConta() {
   }
   localStorage.setItem('emailUser', email);
   localStorage.setItem('senhaUser', senha);
+  localStorage.setItem('tipoSanguineoUser', tipoSanguineo);
+  localStorage.setItem('contatoEmergenciaUser', contato);
   mostrarTela('tela2');
 }
 

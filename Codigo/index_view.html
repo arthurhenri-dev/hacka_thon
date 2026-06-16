@@ -178,14 +178,14 @@ hr {
   </div>
 
   <div class="profile">
-    <img src="idosa.jpeg">
+    <img id="fotoPaciente">
     <div>
-      <strong>Maria Teixeira</strong><br>
-      Idade: 69<br>
-      Diagnóstico principal: Diabetes Tipo 2; Pressão Alta<br>
-      Tipo Sanguíneo: AB<br>
+      <strong id="nomePaciente"></strong><br>
+      Idade: <span id="idadePaciente"></span><br>
+      Diagnóstico principal: <span id="diagnosticoPaciente"></span><br>
+      Tipo Sanguíneo: <span id="tipoSanguineoPaciente"></span><br>
       Alergia(s): Dipirona<br>
-      Telefone: 81 94002-8922 - Josicleide (Filha)<br>
+      Telefone: <span id="telefonePaciente"></span><br>
       <br>
 
     </div>
@@ -229,6 +229,46 @@ hr {
 
 <script>
 
+const params =
+  new URLSearchParams(window.location.search);
+
+const dados =
+  JSON.parse(
+    decodeURIComponent(
+      params.get('dados')
+    )
+  );
+
+function montarMedicamentosAtivos(){
+
+  const box =
+    document.getElementById(
+      'medicamentosAtivosBox'
+    );
+
+  box.innerHTML = '';
+
+  medicamentosAtivos.forEach(m => {
+
+    box.innerHTML += `
+      <div class="remedio-card">
+        <div class="remedio-nome">
+          💊 ${m.nome}
+        </div>
+
+        <div class="remedio-info">
+          ${m.dose}
+        </div>
+
+        <div class="remedio-hora">
+          ⏰ ${m.horario}
+        </div>
+      </div>
+    `;
+  });
+}
+
+
 function mostrarTela(id) {
   document.querySelectorAll('.screen').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -242,7 +282,7 @@ function abrirPin() {
 function verificarPin() {
   let digitado = document.getElementById('inputPin').value;
 
-  if (digitado === "1234") {
+  if (digitado === dados.pin) {
     document.getElementById('popupPin').style.display = 'none';
     mostrarTela('historico');
   } else {
@@ -254,7 +294,8 @@ function fecharPopup() {
   document.getElementById('popupPin').style.display = 'none';
 }
 
-
+const medicamentosAtivos =
+  dados.remedios || [];
 
 const medicamentosSuspensos = [
   { nome: "Ibuprofeno", dose: "10mg", expirou: "10/03/2026" },
@@ -320,6 +361,39 @@ function montarTimeline() {
 }
 
 window.onload = function () {
+
+  document.getElementById(
+    'nomePaciente'
+  ).innerText =
+    dados.nome || 'Não informado';
+
+  document.getElementById(
+    'idadePaciente'
+  ).innerText =
+    dados.idade || '--';
+
+  document.getElementById(
+    'diagnosticoPaciente'
+  ).innerText =
+    dados.diagnostico || '--';
+  
+  document.getElementById(
+    'tipoSanguineoPaciente'
+  ).innerText =
+    dados.tipoSanguineo || 'Não informado';
+
+  document.getElementById(
+    'telefonePaciente'
+  ).innerText =
+    dados.contato || 'Não informado';
+
+  if(dados.foto){
+    document.getElementById(
+      'fotoPaciente'
+    ).src =
+      dados.foto;
+  }
+
   montarResumo();
   montarTimeline();
 };
