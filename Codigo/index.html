@@ -769,14 +769,13 @@ function mostrarTela(id) {
 
   if(id === 'perfil') {
 
-    let fotoSalva =
-      localStorage.getItem('fotoPerfil');
+    const fotoSalva = localStorage.getItem('fotoPerfil');
 
-    if(fotoSalva) {
-
-      document.getElementById(
-        'previewPerfilEdicao'
-      ).src = fotoSalva;
+    if (fotoSalva) {
+      document.getElementById('fotoPaciente').src = fotoSalva;
+    } else {
+      document.getElementById('fotoPaciente').src =
+        'https://via.placeholder.com/80';
     }
   }
 }
@@ -970,7 +969,8 @@ function gerarQR() {
     diagnostico: localStorage.getItem('diagnosticoUser') || '',
     tipoSanguineo: localStorage.getItem('tipoSanguineoUser') || '',
     contato: localStorage.getItem('contatoEmergenciaUser') || '',
-    pin: localStorage.getItem('pin') || ''
+    pin: localStorage.getItem('pin') || '',
+    foto: ''
   };
 
   const json = btoa(JSON.stringify(dados));
