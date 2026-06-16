@@ -288,9 +288,32 @@
 <!-- Login -->
 <div id="login" class="screen">
   <h2>Login</h2>
-  <input type="email" placeholder="Email">
-  <input type="password" placeholder="Senha">
-  <button onclick="mostrarTela('tela2')">Entrar</button>
+  <input
+  type="email"
+  id="loginEmail"
+  placeholder="Email"
+  >
+
+  <input
+    type="password"
+    id="loginSenha"
+    placeholder="Senha"
+  >
+
+  <p
+  id="erroLogin"
+  style="
+    color:red;
+    display:none;
+    font-size:14px;
+  "
+  >
+    Email ou senha estão errados! Tente novamente.
+  </p>
+
+  <button onclick="fazerLogin()">
+    Entrar
+  </button>
   <p onclick="mostrarTela('cadastro')" style="color:blue; cursor:pointer;">Cadastre-se</p>
 </div>
 
@@ -298,8 +321,18 @@
 <div id="cadastro" class="screen">
   <h2>Cadastro</h2>
   <input type="text" id="cadastroNome" placeholder="Nome completo">
-  <input type="email" placeholder="Email">
-  <input type="password" placeholder="Senha">
+  <input
+  type="email"
+  id="cadastroEmail"
+  placeholder="Email"
+  >
+
+  <input
+    type="password"
+    id="cadastroSenha"
+    placeholder="Senha"
+  >
+
   <input type="date" id="dataNascimento">
 
   <input 
@@ -473,12 +506,48 @@
 <div id="perfil" class="screen">
   <button onclick="mostrarTela('tela2')">Voltar</button>
   <h2>Editar Perfil</h2>
+
+  <div style="margin-top:15px; text-align:center;">
+
+  <img
+    id="previewPerfilEdicao"
+    src="https://via.placeholder.com/80"
+    style="
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      object-fit:cover;
+      display:block;
+      margin:0 auto 10px;
+      border:2px solid #ddd;
+    "
+  >
+
+  <input
+    type="file"
+    id="editarFotoInput"
+    accept="image/*"
+    style="display:none"
+    onchange="trocarFotoPerfil(event)"
+  >
+
+  <button
+    type="button"
+    class="btn-secondary"
+    onclick="document.getElementById('editarFotoInput').click()"
+  >
+    Alterar Foto
+  </button>
+  </div>
+
   <input id="editNome" placeholder="Nome">
   <input id="editIdade" placeholder="Idade">
   <input id="editDoenca" placeholder="Diagnóstico">
+
   <input placeholder="Tipo sanguíneo" value="A+">
   <input placeholder="Altura" value="1,60m">
   <input placeholder="Peso" value="69kg">
+
   <button onclick="salvarPerfil()">Salvar</button>
 </div>
 
@@ -593,6 +662,38 @@ function previewFotoPerfil(event) {
   reader.readAsDataURL(file);
 }
 
+function trocarFotoPerfil(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+
+    const novaFoto = e.target.result;
+
+    // Atualiza preview da tela de edição
+    document.getElementById('previewPerfilEdicao').src =
+      novaFoto;
+
+    // Atualiza foto principal
+    document.getElementById('fotoPerfilPrincipal').src =
+      novaFoto;
+
+    // Salva na variável global
+    fotoPerfilBase64 = novaFoto;
+
+    // Salva permanentemente
+    localStorage.setItem(
+      'fotoPerfil',
+      novaFoto
+    );
+  };
+
+  reader.readAsDataURL(file);
+}
+
 function calcularIdade(dataNascimento) {
   const hoje = new Date();
   const nascimento = new Date(dataNascimento);
@@ -612,8 +713,27 @@ function calcularIdade(dataNascimento) {
 }
 
 function mostrarTela(id) {
-  document.querySelectorAll('.screen').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+
+  document
+    .querySelectorAll('.screen')
+    .forEach(t => t.classList.remove('active'));
+
+  document
+    .getElementById(id)
+    .classList.add('active');
+
+  if(id === 'perfil') {
+
+    let fotoSalva =
+      localStorage.getItem('fotoPerfil');
+
+    if(fotoSalva) {
+
+      document.getElementById(
+        'previewPerfilEdicao'
+      ).src = fotoSalva;
+    }
+  }
 }
 
 function abrirPopup(index=null) {
@@ -716,9 +836,31 @@ function excluirRemedio(btn) {
 }
 
 function salvarPerfil() {
-  document.getElementById('nomeUser').innerText = document.getElementById('editNome').value;
-  document.getElementById('idadeUser').innerText = document.getElementById('editIdade').value;
-  document.getElementById('doencaUser').innerText = document.getElementById('editDoenca').value;
+
+  const nome =
+    document.getElementById('editNome').value;
+
+  const idade =
+    document.getElementById('editIdade').value;
+
+  const doenca =
+    document.getElementById('editDoenca').value;
+
+  if(nome){
+    document.getElementById('nomeUser').innerText = nome;
+    localStorage.setItem('nomeUser', nome);
+  }
+
+  if(idade){
+    document.getElementById('idadeUser').innerText = idade;
+    localStorage.setItem('idadeUser', idade);
+  }
+
+  if(doenca){
+    document.getElementById('doencaUser').innerText = doenca;
+    localStorage.setItem('diagnosticoUser', doenca);
+  }
+
   mostrarTela('tela2');
 }
 
@@ -786,6 +928,8 @@ function criarConta() {
   let nome = document.getElementById('cadastroNome').value;
   let dataNascimento = document.getElementById('dataNascimento').value;
   let diagnostico = document.getElementById('cadastroDiagnostico').value;
+  let email = document.getElementById('cadastroEmail').value;
+  let senha = document.getElementById('cadastroSenha').value;
 
   // NOME
   if (nome.trim() !== "") {
@@ -819,7 +963,8 @@ function criarConta() {
       fotoPerfilBase64
     );
   }
-
+  localStorage.setItem('emailUser', email);
+  localStorage.setItem('senhaUser', senha);
   mostrarTela('tela2');
 }
 
@@ -1024,27 +1169,72 @@ function montarMedicamentosAtivos() {
 
 //colocar aqui
   window.onload = function () {
+
   carregarRemedios();
   montarMedicamentosAtivos();
+
   let fotoSalva = localStorage.getItem('fotoPerfil');
 
   if (fotoSalva) {
-    document.getElementById('fotoPerfilPrincipal').src = fotoSalva;
+    document.getElementById('fotoPerfilPrincipal').src =
+      fotoSalva;
+  }
+
+  let nomeSalvo = localStorage.getItem('nomeUser');
+
+  if (nomeSalvo) {
+    document.getElementById('nomeUser').innerText =
+      nomeSalvo;
   }
 
   let idadeSalva = localStorage.getItem('idadeUser');
 
   if (idadeSalva) {
-    document.getElementById('idadeUser').innerText = idadeSalva;
+    document.getElementById('idadeUser').innerText =
+      idadeSalva;
   }
 
-  let diagnosticoSalvo = localStorage.getItem('diagnosticoUser');
+  let diagnosticoSalvo =
+    localStorage.getItem('diagnosticoUser');
 
   if (diagnosticoSalvo) {
     document.getElementById('doencaUser').innerText =
-    diagnosticoSalvo;
- }
+      diagnosticoSalvo;
+  }
+
 };
+
+function fazerLogin() {
+
+  const emailDigitado =
+    document.getElementById('loginEmail').value;
+
+  const senhaDigitada =
+    document.getElementById('loginSenha').value;
+
+  const emailSalvo =
+    localStorage.getItem('emailUser');
+
+  const senhaSalva =
+    localStorage.getItem('senhaUser');
+
+  const erro =
+    document.getElementById('erroLogin');
+
+  if (
+    emailDigitado === emailSalvo &&
+    senhaDigitada === senhaSalva
+  ) {
+
+    erro.style.display = 'none';
+
+    mostrarTela('tela2');
+
+  } else {
+
+    erro.style.display = 'block';
+  }
+}
 
 </script>
 
