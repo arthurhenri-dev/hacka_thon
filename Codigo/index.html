@@ -427,7 +427,6 @@
     overflow:hidden;
     margin-top:8px;
   ">
-
     <div
       id="barraProgresso"
       style="
@@ -436,16 +435,19 @@
         background:#4CAF50;
       ">
     </div>
-
   </div>
 
-  <div class="card">
+</div>
+
+<div class="card">
 
   <strong>Próximo remédio</strong>
 
   <div id="proximoRemedio">
     Nenhum medicamento cadastrado
   </div>
+
+</div>
 
   <button onclick="mostrarTela('historico')">Histórico Clínico</button>
   <button onclick="mostrarTela('perfil')">Editar informações pessoais</button>
@@ -1200,14 +1202,6 @@ function assinarPlano() {
   fecharPro();
 }
 
-const medicamentosAtivos = [
-  { nome: "Captopril", dose: "25mg", hora: "14:40" },
-  { nome: "Anlodipino", dose: "10mg", hora: "17:20" },
-  { nome: "Losartana", dose: "50mg", hora: "20:00" },
-  { nome: "Insulina", dose: "10mg", hora: "13:30" },
-  { nome: "Nimesulida (manhã)", dose: "1 comprimido (10mg)", hora: "09:00" },
-  { nome: "Nimesulida (noite)", dose: "1 comprimido (10mg)", hora: "21:00" }
-];
 
 function montarMedicamentosAtivos() {
   const box = document.getElementById("medicamentosAtivosBox");
@@ -1228,7 +1222,6 @@ function montarMedicamentosAtivos() {
   window.onload = function () {
 
   carregarRemedios();
-  montarMedicamentosAtivos();
 
   let fotoSalva = localStorage.getItem('fotoPerfil');
 
